@@ -9,7 +9,7 @@
 
     body {
       font-family: 'Segoe UI', system-ui, sans-serif;
-      background: linear-gradient(180deg, #87ceeb 0%, #b8f0a0 60%, #7ec850 100%);
+      background: linear-gradient(180deg, #fde8f5 0%, #fce4f0 40%, #f9d4ea 100%);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
@@ -19,34 +19,35 @@
     }
 
     header {
-      margin-top: 24px;
+      margin-top: 28px;
       text-align: center;
     }
     header h1 {
       font-size: 2rem;
-      color: #fff;
-      text-shadow: 0 2px 8px rgba(0,0,0,0.18);
+      color: #d4679a;
+      text-shadow: 0 2px 12px rgba(212,103,154,0.18);
+      letter-spacing: -0.01em;
     }
     header p {
-      color: #e8ffe8;
+      color: #e89bc0;
       font-size: 0.95rem;
       margin-top: 4px;
     }
 
     /* ── 상태창 ── */
     .status-panel {
-      background: rgba(255,255,255,0.82);
-      border-radius: 18px;
+      background: rgba(255,255,255,0.88);
+      border-radius: 20px;
       padding: 14px 28px;
       margin-top: 18px;
       display: flex;
-      gap: 32px;
-      box-shadow: 0 4px 18px rgba(0,0,0,0.10);
+      gap: 28px;
+      box-shadow: 0 4px 20px rgba(212,103,154,0.12);
       align-items: center;
     }
     .stat-item { display: flex; flex-direction: column; align-items: center; gap: 5px; }
-    .stat-label { font-size: 0.78rem; color: #888; font-weight: 600; letter-spacing: 0.04em; }
-    .bar-wrap { width: 110px; height: 13px; background: #e5e7eb; border-radius: 99px; overflow: hidden; }
+    .stat-label { font-size: 0.78rem; color: #c0829e; font-weight: 700; letter-spacing: 0.04em; }
+    .bar-wrap { width: 110px; height: 13px; background: #fce4f0; border-radius: 99px; overflow: hidden; }
     .bar { height: 100%; border-radius: 99px; transition: width 0.5s ease; }
     .bar.hunger  { background: linear-gradient(90deg, #f97316, #fbbf24); }
     .bar.happy   { background: linear-gradient(90deg, #ec4899, #f472b6); }
@@ -56,60 +57,70 @@
     .main-area {
       position: relative;
       width: 520px;
-      height: 340px;
-      margin-top: 10px;
+      height: 360px;
+      margin-top: 4px;
       display: flex;
       align-items: flex-end;
       justify-content: center;
     }
 
-    /* ── 먹이 아이템들 ── */
+    /* ── 먹이 트레이 ── */
     .food-tray {
       position: absolute;
       left: 0;
-      bottom: 50px;
+      bottom: 60px;
       display: flex;
       flex-direction: column;
       gap: 10px;
     }
     .food-item {
-      font-size: 2rem;
+      font-size: 2.2rem;
       cursor: grab;
-      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.12));
       transition: transform 0.15s;
-      width: 48px;
+      width: 52px;
       text-align: center;
     }
-    .food-item:hover { transform: scale(1.2); }
+    .food-item:hover { transform: scale(1.25) rotate(-5deg); }
     .food-item:active { cursor: grabbing; }
-    .food-item.dragging { opacity: 0.4; }
+    .food-item.dragging { opacity: 0.35; }
 
     /* ── 돼지 컨테이너 ── */
     .pig-container {
       position: relative;
-      width: 200px;
-      height: 220px;
+      width: 230px;
+      height: 290px;
       cursor: pointer;
       display: flex;
       align-items: flex-end;
       justify-content: center;
       flex-shrink: 0;
     }
-    .pig-container:hover .pig-body { transform: scale(1.04); }
+
+    /* ── SVG 돼지 스케일 호버 ── */
+    #pig-svg {
+      transition: transform 0.22s cubic-bezier(.34,1.56,.64,1);
+      transform-origin: bottom center;
+      overflow: visible;
+    }
+    .pig-container:hover #pig-svg { transform: scale(1.06); }
+    .pig-container.dragover #pig-svg {
+      filter: drop-shadow(0 0 14px #fbbf24) drop-shadow(0 0 6px #f97316);
+    }
 
     /* ── 말풍선 ── */
     .speech-bubble {
       position: absolute;
-      top: -10px;
+      top: 0px;
       left: 50%;
       transform: translateX(-50%);
       background: #fff;
-      border-radius: 12px;
-      padding: 6px 14px;
+      border-radius: 14px;
+      padding: 7px 16px;
       font-size: 1rem;
       font-weight: 700;
       color: #374151;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+      box-shadow: 0 3px 14px rgba(0,0,0,0.10);
       white-space: nowrap;
       opacity: 0;
       pointer-events: none;
@@ -126,289 +137,93 @@
     }
     .speech-bubble.visible { opacity: 1; }
 
-    /* ── CSS 돼지 ── */
-    .pig-wrap {
-      position: relative;
-      width: 160px;
-      height: 200px;
+    /* ── SVG 돼지 애니메이션 ── */
+    #pigHead {
+      transform-origin: 110px 108px;
     }
+    @keyframes bounce {
+      0%,100% { transform: translateY(0); }
+      30%      { transform: translateY(-24px); }
+      65%      { transform: translateY(-10px); }
+    }
+    @keyframes wiggle {
+      0%,100% { transform: rotate(0deg); }
+      20%      { transform: rotate(-8deg); }
+      60%      { transform: rotate(8deg); }
+    }
+    #pigHead.bouncing { animation: bounce 0.52s cubic-bezier(.36,.07,.19,.97); }
+    #pigHead.wiggling { animation: wiggle 0.38s ease 3; }
 
-    /* 다리 */
-    .legs {
-      position: absolute;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      gap: 20px;
+    /* ── ZZZ 애니메이션 ── */
+    @keyframes zzz {
+      0%,100% { opacity: 0; transform: translate(0,0) scale(0.6); }
+      50%      { opacity: 1; transform: translate(7px,-14px) scale(1); }
     }
-    .leg {
-      width: 22px;
-      height: 36px;
-      background: #f9a8c9;
-      border-radius: 0 0 10px 10px;
-      position: relative;
-    }
-    .leg::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 26px;
-      height: 10px;
-      background: #e879a0;
-      border-radius: 0 0 8px 8px;
-    }
+    #zzz { animation: zzz 2.2s ease-in-out infinite; transform-origin: 158px 58px; }
 
-    /* 몸통 */
-    .pig-body {
-      position: absolute;
-      bottom: 32px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 120px;
-      height: 90px;
-      background: #fbbfd4;
-      border-radius: 50%;
-      box-shadow: inset -6px -6px 12px rgba(0,0,0,0.08);
-      transition: transform 0.2s;
-    }
-
-    /* 꼬리 */
-    .tail {
-      position: absolute;
-      right: 4px;
-      bottom: 70px;
-      width: 22px;
-      height: 22px;
-      border: 5px solid #f472b6;
-      border-radius: 50%;
-      border-left-color: transparent;
-      transform: rotate(-30deg);
-    }
-
-    /* 머리 */
-    .pig-head {
-      position: absolute;
-      bottom: 100px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 100px;
-      height: 95px;
-      background: #fbbfd4;
-      border-radius: 50%;
-      box-shadow: inset -4px -4px 10px rgba(0,0,0,0.07);
-    }
-
-    /* 귀 */
-    .ear {
-      position: absolute;
-      width: 30px;
-      height: 34px;
-      background: #f472b6;
-      border-radius: 50% 50% 40% 40%;
-      top: -14px;
-    }
-    .ear.left  { left: 8px;  transform: rotate(-18deg); }
-    .ear.right { right: 8px; transform: rotate(18deg); }
-    .ear::after {
-      content: '';
-      position: absolute;
-      width: 16px;
-      height: 20px;
-      background: #fda4cf;
-      border-radius: 50%;
-      top: 5px;
-      left: 50%;
-      transform: translateX(-50%);
-    }
-
-    /* 눈 */
-    .eyes {
-      position: absolute;
-      top: 28px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      gap: 22px;
-    }
-    .eye {
-      width: 16px;
-      height: 16px;
-      background: #1f2937;
-      border-radius: 50%;
-      position: relative;
-      overflow: hidden;
-    }
-    .pupil {
-      position: absolute;
-      width: 8px;
-      height: 8px;
-      background: #111;
-      border-radius: 50%;
-      top: 4px;
-      left: 4px;
-      transition: transform 0.08s linear;
-    }
-    .eye::after {
-      content: '';
-      position: absolute;
-      width: 5px;
-      height: 5px;
-      background: rgba(255,255,255,0.7);
-      border-radius: 50%;
-      top: 2px;
-      left: 2px;
-    }
-
-    /* 코 */
-    .snout {
-      position: absolute;
-      bottom: 18px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 44px;
-      height: 30px;
-      background: #f9a8c9;
-      border-radius: 50%;
-      display: flex;
-      justify-content: space-evenly;
-      align-items: center;
-      box-shadow: inset 0 3px 6px rgba(0,0,0,0.10);
-    }
-    .nostril {
-      width: 10px;
-      height: 7px;
-      background: #e879a0;
-      border-radius: 50%;
-    }
-
-    /* 볼터치 */
-    .cheek {
-      position: absolute;
-      width: 20px;
-      height: 12px;
-      background: rgba(249,100,150,0.35);
-      border-radius: 50%;
-      bottom: 24px;
-    }
-    .cheek.left  { left: 6px; }
-    .cheek.right { right: 6px; }
-
-    /* 입 */
-    .mouth {
-      position: absolute;
-      bottom: 12px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 22px;
-      height: 10px;
-      border-bottom: 3px solid #e879a0;
-      border-radius: 0 0 12px 12px;
-      transition: all 0.3s;
-    }
+    /* ── 수면 눈 ── */
+    .eye-awake { }
+    .eye-sleep  { display: none; }
+    #eyeL.sleeping .eye-awake,
+    #eyeR.sleeping .eye-awake { display: none; }
+    #eyeL.sleeping .eye-sleep,
+    #eyeR.sleeping .eye-sleep { display: block; }
 
     /* ── 파티클 ── */
     .particle {
       position: fixed;
       pointer-events: none;
-      font-size: 1.4rem;
-      animation: floatUp 1.2s ease-out forwards;
+      font-size: 1.5rem;
+      animation: floatUp 1.3s ease-out forwards;
       z-index: 100;
     }
     @keyframes floatUp {
       0%   { opacity: 1; transform: translateY(0) scale(1); }
-      100% { opacity: 0; transform: translateY(-90px) scale(0.5); }
+      100% { opacity: 0; transform: translateY(-100px) scale(0.4); }
     }
-
-    /* ── 클릭 바운스 ── */
-    @keyframes bounce {
-      0%,100% { transform: translateX(-50%) translateY(0); }
-      30%      { transform: translateX(-50%) translateY(-22px); }
-      60%      { transform: translateX(-50%) translateY(-10px); }
-    }
-    .pig-head.bouncing { animation: bounce 0.5s ease; }
-
-    /* ── 행복 떨림 ── */
-    @keyframes wiggle {
-      0%,100% { transform: translateX(-50%) rotate(0deg); }
-      25%      { transform: translateX(-50%) rotate(-6deg); }
-      75%      { transform: translateX(-50%) rotate(6deg); }
-    }
-    .pig-head.wiggling { animation: wiggle 0.4s ease 3; }
-
-    /* ── 수면 ── */
-    .zzz {
-      position: absolute;
-      top: 0; right: -30px;
-      font-size: 1.1rem;
-      opacity: 0;
-      animation: zzz 2s ease-in-out infinite;
-    }
-    @keyframes zzz {
-      0%,100% { opacity: 0; transform: translate(0,0) scale(0.7); }
-      50%      { opacity: 1; transform: translate(6px,-12px) scale(1); }
-    }
-
-    /* ── 드래그 오버 하이라이트 ── */
-    .pig-container.dragover .pig-body { box-shadow: 0 0 0 4px #fbbf24, inset -6px -6px 12px rgba(0,0,0,0.08); }
 
     /* ── 버튼 ── */
     .btn-row {
       display: flex;
       gap: 16px;
-      margin-top: 18px;
+      margin-top: 16px;
     }
     .btn {
-      padding: 11px 26px;
+      padding: 12px 28px;
       border: none;
       border-radius: 50px;
       font-size: 1rem;
       font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.10);
       transition: transform 0.12s, box-shadow 0.12s;
     }
-    .btn:hover  { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.15); }
+    .btn:hover  { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.13); }
     .btn:active { transform: translateY(1px); }
-    .btn.pet  { background: linear-gradient(135deg, #f472b6, #ec4899); color: #fff; }
-    .btn.feed { background: linear-gradient(135deg, #fbbf24, #f97316); color: #fff; }
+    .btn.pet  { background: linear-gradient(135deg, #f9a8d4, #ec4899); color: #fff; }
+    .btn.feed { background: linear-gradient(135deg, #fde68a, #f97316); color: #fff; }
 
-    /* ── 먹이 드래그 힌트 ── */
+    /* ── 힌트 ── */
     .drag-hint {
       font-size: 0.82rem;
-      color: rgba(255,255,255,0.85);
-      margin-top: 10px;
+      color: rgba(180,100,140,0.85);
+      margin-top: 8px;
       text-align: center;
     }
 
     footer {
       margin-top: auto;
-      padding: 20px;
-      color: rgba(255,255,255,0.7);
+      padding: 22px;
+      color: rgba(200,120,160,0.7);
       font-size: 0.82rem;
       text-align: center;
     }
 
-    /* ── 수면 눈 ── */
-    .eye.sleeping { background: #f9a8c9; }
-    .eye.sleeping .pupil { display: none; }
-    .eye.sleeping::before {
-      content: '─';
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%,-50%);
-      color: #e879a0;
-      font-size: 0.9rem;
-      font-weight: 900;
-    }
-
-    /* 드래그 유령 */
+    /* 드래그 고스트 */
     #drag-ghost {
       position: fixed;
       pointer-events: none;
-      font-size: 2rem;
+      font-size: 2.2rem;
       z-index: 999;
       transform: translate(-50%, -50%);
       display: none;
@@ -418,7 +233,7 @@
 <body>
 
 <header>
-  <h1>🐷 서현의 아기 돼지</h1>
+  <h1>🩷 서현의 아기 돼지</h1>
   <p>돼지와 놀아주세요!</p>
 </header>
 
@@ -449,116 +264,211 @@
   <div class="pig-container" id="pigContainer">
     <div class="speech-bubble" id="speechBubble">꿀꿀!</div>
 
-    <div class="pig-wrap">
-      <!-- 꼬리 -->
-      <div class="tail"></div>
-      <!-- 다리 -->
-      <div class="legs">
-        <div class="leg"></div>
-        <div class="leg"></div>
-        <div class="leg"></div>
-        <div class="leg"></div>
-      </div>
-      <!-- 몸통 -->
-      <div class="pig-body"></div>
-      <!-- 머리 -->
-      <div class="pig-head" id="pigHead">
-        <div class="ear left"></div>
-        <div class="ear right"></div>
-        <div class="eyes">
-          <div class="eye" id="eyeL"><div class="pupil" id="pupilL"></div></div>
-          <div class="eye" id="eyeR"><div class="pupil" id="pupilR"></div></div>
-        </div>
-        <div class="cheek left"></div>
-        <div class="cheek right"></div>
-        <div class="snout">
-          <div class="nostril"></div>
-          <div class="nostril"></div>
-        </div>
-        <div class="mouth" id="mouth"></div>
-        <div class="zzz" id="zzz">💤</div>
-      </div>
-    </div>
-  </div>
-</div>
+    <!-- ══ 카와이 SVG 아기 돼지 ══ -->
+    <svg id="pig-svg" viewBox="0 0 220 260" xmlns="http://www.w3.org/2000/svg"
+         width="220" height="260" style="overflow:visible;">
+      <defs>
+        <filter id="softShadow" x="-20%" y="-10%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#e07aaf" flood-opacity="0.22"/>
+        </filter>
+        <radialGradient id="bodyGrad" cx="38%" cy="35%" r="65%">
+          <stop offset="0%"   stop-color="#ffd6ea"/>
+          <stop offset="100%" stop-color="#ffb3d1"/>
+        </radialGradient>
+        <radialGradient id="headGrad" cx="35%" cy="30%" r="65%">
+          <stop offset="0%"   stop-color="#ffdaed"/>
+          <stop offset="100%" stop-color="#ffb3d1"/>
+        </radialGradient>
+      </defs>
 
-<!-- 드래그 힌트 -->
+      <!-- ── 왼쪽 귀 ── -->
+      <ellipse cx="60" cy="50" rx="26" ry="34" fill="#ffb3d1" stroke="#de87b8" stroke-width="3.5"
+               transform="rotate(-18,60,50)" filter="url(#softShadow)"/>
+      <ellipse cx="60" cy="48" rx="14" ry="21" fill="#f093bf" transform="rotate(-18,60,48)"/>
+      <!-- 귀 안쪽 하이라이트 -->
+      <ellipse cx="55" cy="41" rx="5" ry="8" fill="rgba(255,255,255,0.28)" transform="rotate(-18,55,41)"/>
+
+      <!-- ── 오른쪽 귀 ── -->
+      <ellipse cx="160" cy="50" rx="26" ry="34" fill="#ffb3d1" stroke="#de87b8" stroke-width="3.5"
+               transform="rotate(18,160,50)" filter="url(#softShadow)"/>
+      <ellipse cx="160" cy="48" rx="14" ry="21" fill="#f093bf" transform="rotate(18,160,48)"/>
+      <ellipse cx="165" cy="41" rx="5" ry="8" fill="rgba(255,255,255,0.28)" transform="rotate(18,165,41)"/>
+
+      <!-- ── 몸통 ── -->
+      <ellipse cx="110" cy="200" rx="70" ry="58" fill="url(#bodyGrad)" stroke="#de87b8" stroke-width="3.5"
+               filter="url(#softShadow)"/>
+      <!-- 몸통 하이라이트 -->
+      <ellipse cx="85" cy="172" rx="22" ry="14" fill="rgba(255,255,255,0.32)" transform="rotate(-22,85,172)"/>
+
+      <!-- ── 왼팔 ── -->
+      <ellipse cx="43" cy="205" rx="22" ry="16" fill="#ffb3d1" stroke="#de87b8" stroke-width="3"
+               transform="rotate(-28,43,205)"/>
+      <!-- 왼손 발굽 -->
+      <ellipse cx="34" cy="219" rx="16" ry="11" fill="#ffd0e8" stroke="#de87b8" stroke-width="2.5"/>
+
+      <!-- ── 오른팔 ── -->
+      <ellipse cx="177" cy="205" rx="22" ry="16" fill="#ffb3d1" stroke="#de87b8" stroke-width="3"
+               transform="rotate(28,177,205)"/>
+      <!-- 오른손 발굽 -->
+      <ellipse cx="186" cy="219" rx="16" ry="11" fill="#ffd0e8" stroke="#de87b8" stroke-width="2.5"/>
+
+      <!-- ── 왼다리 발굽 ── -->
+      <ellipse cx="80" cy="248" rx="21" ry="14" fill="#ffb3d1" stroke="#de87b8" stroke-width="2.5"/>
+      <ellipse cx="80" cy="251" rx="17" ry="10" fill="#ffd0e8" stroke="#de87b8" stroke-width="2"/>
+
+      <!-- ── 오른다리 발굽 ── -->
+      <ellipse cx="140" cy="248" rx="21" ry="14" fill="#ffb3d1" stroke="#de87b8" stroke-width="2.5"/>
+      <ellipse cx="140" cy="251" rx="17" ry="10" fill="#ffd0e8" stroke="#de87b8" stroke-width="2"/>
+
+      <!-- ══ 머리 그룹 (바운스/위글 애니메이션 대상) ══ -->
+      <g id="pigHead">
+
+        <!-- 머리 원 -->
+        <circle cx="110" cy="108" r="72" fill="url(#headGrad)" stroke="#de87b8" stroke-width="3.5"
+                filter="url(#softShadow)"/>
+        <!-- 머리 하이라이트 -->
+        <ellipse cx="83" cy="66" rx="24" ry="16" fill="rgba(255,255,255,0.36)" transform="rotate(-28,83,66)"/>
+
+        <!-- ── 볼 터치 ── -->
+        <ellipse cx="62" cy="120" rx="26" ry="17" fill="rgba(230,100,148,0.26)"/>
+        <ellipse cx="158" cy="120" rx="26" ry="17" fill="rgba(230,100,148,0.26)"/>
+
+        <!-- ── 코 (크고 둥근 주둥이) ── -->
+        <ellipse cx="110" cy="132" rx="40" ry="30" fill="#ffdae9" stroke="#de87b8" stroke-width="2.5"/>
+        <!-- 코 하이라이트 -->
+        <ellipse cx="97" cy="122" rx="10" ry="7" fill="rgba(255,255,255,0.55)" transform="rotate(-12,97,122)"/>
+        <!-- 콧구멍 -->
+        <ellipse cx="97"  cy="137" rx="9" ry="8" fill="#d96da0"/>
+        <ellipse cx="123" cy="137" rx="9" ry="8" fill="#d96da0"/>
+        <!-- 콧구멍 하이라이트 -->
+        <ellipse cx="94"  cy="134" rx="3.5" ry="2.5" fill="rgba(255,255,255,0.4)"/>
+        <ellipse cx="120" cy="134" rx="3.5" ry="2.5" fill="rgba(255,255,255,0.4)"/>
+
+        <!-- ── 왼쪽 눈 ── -->
+        <g id="eyeL">
+          <!-- 깨어있는 눈 -->
+          <g class="eye-awake">
+            <circle cx="84" cy="96" r="10" fill="#3b1a28"/>
+            <!-- 졸린 눈꺼풀 (위 절반 가리기) -->
+            <path d="M74,96 Q84,82 94,96" fill="#ffdaed"/>
+            <!-- 눈꺼풀 라인 -->
+            <path d="M74,96 Q84,83 94,96" fill="none" stroke="#3b1a28" stroke-width="2.2" stroke-linecap="round"/>
+            <!-- 눈 하이라이트 -->
+            <circle id="pupilL" cx="81" cy="100" r="3.5" fill="white" opacity="0.88"/>
+            <circle cx="88" cy="97" r="1.5" fill="white" opacity="0.5"/>
+          </g>
+          <!-- 수면 눈 -->
+          <g class="eye-sleep">
+            <path d="M74,96 Q84,103 94,96" fill="none" stroke="#d96da0" stroke-width="3" stroke-linecap="round"/>
+          </g>
+        </g>
+
+        <!-- ── 오른쪽 눈 ── -->
+        <g id="eyeR">
+          <!-- 깨어있는 눈 -->
+          <g class="eye-awake">
+            <circle cx="136" cy="96" r="10" fill="#3b1a28"/>
+            <path d="M126,96 Q136,82 146,96" fill="#ffdaed"/>
+            <path d="M126,96 Q136,83 146,96" fill="none" stroke="#3b1a28" stroke-width="2.2" stroke-linecap="round"/>
+            <circle id="pupilR" cx="133" cy="100" r="3.5" fill="white" opacity="0.88"/>
+            <circle cx="140" cy="97" r="1.5" fill="white" opacity="0.5"/>
+          </g>
+          <!-- 수면 눈 -->
+          <g class="eye-sleep">
+            <path d="M126,96 Q136,103 146,96" fill="none" stroke="#d96da0" stroke-width="3" stroke-linecap="round"/>
+          </g>
+        </g>
+
+        <!-- ── 입 ── -->
+        <path id="mouth" d="M101,155 Q110,164 119,155"
+              fill="none" stroke="#d96da0" stroke-width="3" stroke-linecap="round"/>
+
+        <!-- ── ZZZ (수면용) ── -->
+        <text id="zzz" x="158" y="62" font-size="17" fill="#d96da0"
+              opacity="0" font-family="system-ui" font-weight="700">💤</text>
+
+      </g><!-- /pigHead -->
+
+      <!-- ── 반짝이 장식 ── -->
+      <g fill="white" opacity="0.85">
+        <path d="M198 68 l2.5 -6 2.5 6 6 2.5 -6 2.5 -2.5 6 -2.5 -6 -6 -2.5z"/>
+        <path d="M16 95 l1.8 -4.5 1.8 4.5 4.5 1.8 -4.5 1.8 -1.8 4.5 -1.8 -4.5 -4.5 -1.8z" opacity="0.7"/>
+        <path d="M195 195 l1.5 -3.5 1.5 3.5 3.5 1.5 -3.5 1.5 -1.5 3.5 -1.5 -3.5 -3.5 -1.5z" opacity="0.6"/>
+      </g>
+    </svg>
+    <!-- /SVG pig -->
+
+  </div><!-- /pig-container -->
+</div><!-- /main-area -->
+
 <p class="drag-hint">← 먹이를 끌어다 돼지에게 주세요!</p>
 
-<!-- B: 버튼 -->
 <div class="btn-row">
   <button class="btn pet"  id="btnPet">🤚 쓰다듬기</button>
   <button class="btn feed" id="btnFeed">🍎 먹이주기</button>
 </div>
 
-<!-- 드래그 고스트 -->
 <div id="drag-ghost"></div>
 
-<footer>🐷 서현의 아기 돼지 · 2026</footer>
+<footer>🩷 서현의 아기 돼지 · 2026</footer>
 
 <script>
   // ── 상태 ──
   const state = {
-    hunger: 80,   // 0~100, 낮을수록 배고픔
+    hunger: 80,
     happy:  75,
     sleeping: false,
     idleTimer: null,
   };
 
-  const hungerBar  = document.getElementById('hungerBar');
-  const happyBar   = document.getElementById('happyBar');
-  const moodText   = document.getElementById('moodText');
+  const hungerBar    = document.getElementById('hungerBar');
+  const happyBar     = document.getElementById('happyBar');
+  const moodText     = document.getElementById('moodText');
   const speechBubble = document.getElementById('speechBubble');
-  const pigHead    = document.getElementById('pigHead');
+  const pigHead      = document.getElementById('pigHead');
   const pigContainer = document.getElementById('pigContainer');
-  const eyeL = document.getElementById('eyeL');
-  const eyeR = document.getElementById('eyeR');
-  const pupilL = document.getElementById('pupilL');
-  const pupilR = document.getElementById('pupilR');
-  const mouth  = document.getElementById('mouth');
-  const zzz    = document.getElementById('zzz');
+  const eyeL         = document.getElementById('eyeL');
+  const eyeR         = document.getElementById('eyeR');
+  const pupilL       = document.getElementById('pupilL');
+  const pupilR       = document.getElementById('pupilR');
+  const mouth        = document.getElementById('mouth');
+  const zzz          = document.getElementById('zzz');
 
   // ── B: 상태 업데이트 ──
   function updateStatus() {
     hungerBar.style.width = state.hunger + '%';
-    happyBar.style.width  = state.happy + '%';
+    happyBar.style.width  = state.happy  + '%';
 
     if (state.sleeping) {
       moodText.textContent = '😴 자는 중';
-    } else if (state.hunger < 25) {
+      return;
+    }
+    if (state.hunger < 25) {
       moodText.textContent = '😢 배고파요!';
-      mouth.style.borderRadius = '12px 12px 0 0';
-      mouth.style.borderBottom = 'none';
-      mouth.style.borderTop = '3px solid #e879a0';
+      mouth.setAttribute('d', 'M101,155 Q110,147 119,155');
     } else if (state.happy > 85) {
       moodText.textContent = '😍 행복해요!';
-      mouth.style.borderRadius = '0 0 12px 12px';
-      mouth.style.borderTop = 'none';
-      mouth.style.borderBottom = '3px solid #e879a0';
+      mouth.setAttribute('d', 'M97,152 Q110,168 123,152');
     } else if (state.happy < 30) {
       moodText.textContent = '😞 외로워요';
-      mouth.style.borderRadius = '12px 12px 0 0';
-      mouth.style.borderBottom = 'none';
-      mouth.style.borderTop = '3px solid #e879a0';
+      mouth.setAttribute('d', 'M101,155 Q110,147 119,155');
     } else {
       moodText.textContent = '😊 보통';
-      mouth.style.borderRadius = '0 0 12px 12px';
-      mouth.style.borderTop = 'none';
-      mouth.style.borderBottom = '3px solid #e879a0';
+      mouth.setAttribute('d', 'M101,155 Q110,164 119,155');
     }
   }
 
-  // ── 파티클 생성 ──
+  // ── 파티클 ──
   function spawnParticles(x, y, emojis) {
     emojis.forEach((em, i) => {
       const el = document.createElement('div');
       el.className = 'particle';
       el.textContent = em;
-      el.style.left = (x + (Math.random()-0.5)*60) + 'px';
+      el.style.left = (x + (Math.random() - 0.5) * 70) + 'px';
       el.style.top  = y + 'px';
-      el.style.animationDelay = (i * 0.08) + 's';
+      el.style.animationDelay = (i * 0.09) + 's';
       document.body.appendChild(el);
-      setTimeout(() => el.remove(), 1400);
+      setTimeout(() => el.remove(), 1500);
     });
   }
 
@@ -568,14 +478,13 @@
     speechBubble.textContent = text;
     speechBubble.classList.add('visible');
     clearTimeout(bubbleTimer);
-    bubbleTimer = setTimeout(() => speechBubble.classList.remove('visible'), 1800);
+    bubbleTimer = setTimeout(() => speechBubble.classList.remove('visible'), 1900);
   }
 
   // ── 수면 ──
   function setSleeping(on) {
     state.sleeping = on;
     zzz.style.opacity = on ? '1' : '0';
-    zzz.style.animation = on ? 'zzz 2s ease-in-out infinite' : 'none';
     if (on) {
       eyeL.classList.add('sleeping');
       eyeR.classList.add('sleeping');
@@ -583,19 +492,9 @@
     } else {
       eyeL.classList.remove('sleeping');
       eyeR.classList.remove('sleeping');
-      wakeUp();
+      showBubble('😲 엇, 깼다!');
     }
     updateStatus();
-  }
-
-  function wakeUp() {
-    if (!state.sleeping) return;
-    state.sleeping = false;
-    eyeL.classList.remove('sleeping');
-    eyeR.classList.remove('sleeping');
-    zzz.style.animation = 'none';
-    showBubble('😲 엇, 깼다!');
-    resetIdleTimer();
   }
 
   function resetIdleTimer() {
@@ -605,40 +504,41 @@
   }
   resetIdleTimer();
 
+  // ── SVG 애니메이션 재시작 헬퍼 ──
+  function restartAnim(el, cls) {
+    el.classList.remove(cls);
+    el.getBoundingClientRect();
+    el.classList.add(cls);
+    el.addEventListener('animationend', () => el.classList.remove(cls), { once: true });
+  }
+
   // ── A: 클릭 반응 ──
-  pigContainer.addEventListener('click', (e) => {
+  pigContainer.addEventListener('click', () => {
     if (state.sleeping) { setSleeping(false); return; }
     resetIdleTimer();
 
     const rect = pigContainer.getBoundingClientRect();
-    const cx = rect.left + rect.width / 2;
+    const cx = rect.left + rect.width  / 2;
     const cy = rect.top  + rect.height / 2;
 
-    const oinks = ['꿀꿀!', '꿀~꿀!', '히히힝!', '꽤꽤!', '냠냠!'];
+    const oinks = ['꿀꿀!', '꿀~꿀!', '히히힝!', '꽤꽤!', '반가워!'];
     showBubble(oinks[Math.floor(Math.random() * oinks.length)]);
-    spawnParticles(cx, cy - 30, ['🐷','💖','✨']);
-
-    pigHead.classList.remove('bouncing');
-    void pigHead.offsetWidth;
-    pigHead.classList.add('bouncing');
-    pigHead.addEventListener('animationend', () => pigHead.classList.remove('bouncing'), { once: true });
+    spawnParticles(cx, cy - 40, ['🐷','💖','✨']);
+    restartAnim(pigHead, 'bouncing');
 
     state.happy = Math.min(100, state.happy + 3);
     updateStatus();
   });
 
   // ── C: 마우스 눈 추적 ──
-  function trackEye(eyeEl, pupilEl, mouseX, mouseY) {
+  function trackEye(eyeEl, pupilEl, mx, my) {
     const rect = eyeEl.getBoundingClientRect();
     const cx = rect.left + rect.width  / 2;
     const cy = rect.top  + rect.height / 2;
-    const dx = mouseX - cx;
-    const dy = mouseY - cy;
-    const angle = Math.atan2(dy, dx);
-    const dist  = Math.min(Math.hypot(dx, dy), 4);
-    const px = Math.cos(angle) * dist;
-    const py = Math.sin(angle) * dist;
-    pupilEl.style.transform = `translate(${px}px, ${py}px)`;
+    const angle = Math.atan2(my - cy, mx - cx);
+    const dist  = Math.min(Math.hypot(mx - cx, my - cy), 4.5);
+    pupilEl.style.transform =
+      `translate(${Math.cos(angle) * dist}px, ${Math.sin(angle) * dist}px)`;
   }
 
   document.addEventListener('mousemove', (e) => {
@@ -647,7 +547,7 @@
     trackEye(eyeR, pupilR, e.clientX, e.clientY);
   });
 
-  // ── D: 드래그 앤 드롭 먹이주기 ──
+  // ── D: 드래그 앤 드롭 ──
   const ghost = document.getElementById('drag-ghost');
   let draggingFood = null;
 
@@ -687,62 +587,43 @@
     if (state.sleeping) setSleeping(false);
     resetIdleTimer();
 
-    const food = draggingFood;
     const rect = pigContainer.getBoundingClientRect();
-    spawnParticles(rect.left + rect.width/2, rect.top, [food, '😋', '✨']);
+    spawnParticles(rect.left + rect.width / 2, rect.top + 30, [draggingFood, '😋', '✨']);
     showBubble('냠냠~ 맛있어!');
-
-    pigHead.classList.remove('wiggling');
-    void pigHead.offsetWidth;
-    pigHead.classList.add('wiggling');
-    pigHead.addEventListener('animationend', () => pigHead.classList.remove('wiggling'), { once: true });
+    restartAnim(pigHead, 'wiggling');
 
     state.hunger = Math.min(100, state.hunger + 20);
     state.happy  = Math.min(100, state.happy  + 10);
     updateStatus();
   });
 
-  // ── B: 버튼 ──
+  // ── B: 쓰다듬기 버튼 ──
   document.getElementById('btnPet').addEventListener('click', () => {
     if (state.sleeping) { setSleeping(false); return; }
     resetIdleTimer();
-    showBubble('기분 좋아~ 💕');
-    spawnParticles(
-      pigContainer.getBoundingClientRect().left + 80,
-      pigContainer.getBoundingClientRect().top,
-      ['💕','🌸','✨','💗']
-    );
-    pigHead.classList.remove('wiggling');
-    void pigHead.offsetWidth;
-    pigHead.classList.add('wiggling');
-    pigHead.addEventListener('animationend', () => pigHead.classList.remove('wiggling'), { once: true });
-
+    showBubble('기분 좋아~ 🩷');
+    const r = pigContainer.getBoundingClientRect();
+    spawnParticles(r.left + r.width / 2, r.top + 40, ['💕','🌸','✨','💗']);
+    restartAnim(pigHead, 'wiggling');
     state.happy = Math.min(100, state.happy + 15);
     updateStatus();
   });
 
+  // ── B: 먹이주기 버튼 ──
   document.getElementById('btnFeed').addEventListener('click', () => {
     if (state.sleeping) { setSleeping(false); return; }
     resetIdleTimer();
-    const foods = ['🍎','🥕','🌽'];
-    const f = foods[Math.floor(Math.random() * foods.length)];
-    spawnParticles(
-      pigContainer.getBoundingClientRect().left + 80,
-      pigContainer.getBoundingClientRect().top,
-      [f, '😋', '💛']
-    );
+    const f = ['🍎','🥕','🌽'][Math.floor(Math.random() * 3)];
+    const r = pigContainer.getBoundingClientRect();
+    spawnParticles(r.left + r.width / 2, r.top + 40, [f, '😋', '💛']);
     showBubble('냠냠~ 맛있어!');
-    pigHead.classList.remove('wiggling');
-    void pigHead.offsetWidth;
-    pigHead.classList.add('wiggling');
-    pigHead.addEventListener('animationend', () => pigHead.classList.remove('wiggling'), { once: true });
-
+    restartAnim(pigHead, 'wiggling');
     state.hunger = Math.min(100, state.hunger + 20);
     state.happy  = Math.min(100, state.happy  + 5);
     updateStatus();
   });
 
-  // ── B: 시간에 따라 배고픔·행복도 감소 ──
+  // ── B: 시간 경과 배고픔·행복 감소 ──
   setInterval(() => {
     if (!state.sleeping) {
       state.hunger = Math.max(0, state.hunger - 1.5);
